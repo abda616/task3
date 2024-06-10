@@ -32,10 +32,10 @@ export table_prefix="\$table_prefix"
 envsubst < wp-config.php > tem.php
 mv -f tem.php wp-config.php
 
+systemctl enable mysqld httpd
+systemctl restart mysqld httpd
+
 mkdir -p /var/www/html/wp-content
 export EFS_FILE=$(aws ssm get-parameters --names /wordpress/efs --with-decryption --query 'Parameters[0].Value' | sed 's/\"//g')
 echo ${EFS_FILE}:/ /var/www/html/wp-content efs _netdev,tls 0 0 >> /etc/fstab
-sudo mount -t efs -o tls $EFS_FILE:/ /var/www/html/wp-content
-
-systemctl restart mysqld httpd
-systemctl enable mysqld httpd 
+sudo mount -t efs -o tls ${EFS_FILE}:/ /var/www/html/wp-content
